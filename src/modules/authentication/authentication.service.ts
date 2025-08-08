@@ -7,7 +7,7 @@ import {
 import bcrypt from "bcrypt"
 import { FastifyReply, FastifyRequest } from "fastify"
 import { sign, verify } from "jsonwebtoken"
-import { IMiddlewareUser } from "~/interfaces/user.interface"
+import { IContextUser } from "~/interfaces/user.interface"
 import { env } from "~/libs/env.lib"
 import { sendMail } from "~/libs/nodemailer"
 import { response } from "~/libs/response"
@@ -171,7 +171,7 @@ export class AuthenticationService {
     const payload = verify(
       refreshToken,
       `${env.JWT_SECRET}-refresh-token-signature`,
-    ) as IMiddlewareUser
+    ) as IContextUser
 
     if (!payload) {
       throw new UnauthorizedException("Invalid refresh token")

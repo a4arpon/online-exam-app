@@ -14,17 +14,17 @@ const mailTransporter = nodemailer.createTransport({
   maxMessages: 100,
 })
 
-mailTransporter
-  .verify()
-  .then(() => {
-    console.log("[mailer] Transporter verified")
-  })
-  .catch((err) => {
-    console.warn(
-      "[mailer] Transporter verification failed:",
-      err?.message ?? err,
-    )
-  })
+// mailTransporter
+//   .verify()
+//   .then(() => {
+//     console.log("[mailer] Transporter verified")
+//   })
+//   .catch((err) => {
+//     console.warn(
+//       "[mailer] Transporter verification failed:",
+//       err?.message ?? err,
+//     )
+//   })
 
 type MailSendArgs = {
   to: string | string[]

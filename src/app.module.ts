@@ -5,6 +5,7 @@ import { HttpExceptionFilter } from "./libs/http-exception.filter"
 import { connectDB } from "./libs/mongoose"
 import { AdminCertificatesModule } from "./modules/admin-certificates/admin-certificates.module"
 import { AdminTestsModule } from "./modules/admin-tests/admin-tests.module"
+import { AdminUsersModule } from "./modules/admin-users/admin-users.module"
 import { AuthenticationModule } from "./modules/authentication/authentication.module"
 import { CertificatesModule } from "./modules/certificates/certificates.module"
 import { TestsModule } from "./modules/tests/tests.module"
@@ -17,17 +18,19 @@ import { TestsModule } from "./modules/tests/tests.module"
      * |---------------------------------------------------
      */
     ConfigModule.forRoot({ isGlobal: true }),
-    AuthenticationModule,
-    CertificatesModule,
-    AdminCertificatesModule,
-    AdminTestsModule,
-    TestsModule,
 
     /**
      * |---------------------------------------------------
      * | Application Modules
      * |---------------------------------------------------
      */
+
+    AuthenticationModule,
+    CertificatesModule,
+    AdminCertificatesModule,
+    AdminTestsModule,
+    TestsModule,
+    AdminUsersModule,
   ],
   providers: [
     {

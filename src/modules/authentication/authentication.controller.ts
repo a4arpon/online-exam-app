@@ -11,7 +11,7 @@ import {
 import { FastifyReply, FastifyRequest } from "fastify"
 import { AuthGuard } from "~/auth-guard/auth-guard.guard"
 import { ContextUser } from "~/decorators/context-user.decorator"
-import { IMiddlewareUser } from "~/interfaces/user.interface"
+import { IContextUser } from "~/interfaces/user.interface"
 import { LoginDto, RegisterDto, VerifyOTPDto } from "./authentication.dto"
 import { AuthenticationService } from "./authentication.service"
 
@@ -36,7 +36,7 @@ export class AuthenticationController {
 
   @UseGuards(AuthGuard)
   @Get("my-profile")
-  getMyProfile(@ContextUser() user: IMiddlewareUser) {
+  getMyProfile(@ContextUser() user: IContextUser) {
     return this.authenticationService.myProfile(user.user)
   }
 

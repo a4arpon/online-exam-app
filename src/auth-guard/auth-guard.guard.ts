@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common"
 import { FastifyRequest } from "fastify"
 import { verify } from "jsonwebtoken"
-import { IMiddlewareUser } from "~/interfaces/user.interface"
+import { IContextUser } from "~/interfaces/user.interface"
 import { env } from "~/libs/env.lib"
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AuthGuard implements CanActivate {
     if (!token) throw new UnauthorizedException("Access token missing")
 
     try {
-      const decoded = verify(token, env.JWT_SECRET) as IMiddlewareUser
+      const decoded = verify(token, env.JWT_SECRET) as IContextUser
 
       req.user = decoded
 

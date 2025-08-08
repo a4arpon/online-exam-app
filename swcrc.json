@@ -1,0 +1,11 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "sourceMaps": true,
+  "module": {
+    "strict": true,
+    "strictMode": true,
+    "lazy": false,
+    "type": "commonjs"
+  },
+  "minify": true
+}

@@ -9,3 +9,8 @@ export interface IUser extends Document {
   role: UserRole
   isVerified: boolean
 }
+
+export interface IMiddlewareUser {
+  user: string
+  role: UserRole
+}

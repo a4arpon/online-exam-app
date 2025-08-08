@@ -5,8 +5,9 @@ import {
   UnauthorizedException,
 } from "@nestjs/common"
 import bcrypt from "bcrypt"
-import { FastifyReply } from "fastify"
-import { sign } from "jsonwebtoken"
+import { FastifyReply, FastifyRequest } from "fastify"
+import { sign, verify } from "jsonwebtoken"
+import { IMiddlewareUser } from "~/interfaces/user.interface"
 import { env } from "~/libs/env.lib"
 import { sendMail } from "~/libs/nodemailer"
 import { response } from "~/libs/response"
@@ -57,10 +58,10 @@ export class AuthenticationService {
 
     if (!isMatch) throw new UnauthorizedException("Invalid credentials")
 
-    const payload = { sub: user._id, role: user.role }
+    const payload = { user: user?._id, role: user.role }
 
     const accessToken = sign(payload, env.JWT_SECRET, {
-      expiresIn: "50m",
+      expiresIn: "1h",
     })
 
     const refreshToken = sign(
@@ -78,7 +79,7 @@ export class AuthenticationService {
         path: "/",
       })
       .cookie("access-token", accessToken, {
-        expires: new Date(Date.now() + 1000 * 15),
+        expires: new Date(Date.now() + 1000 * 60 * 55), // 55 minutes
         path: "/",
       })
       .send({
@@ -145,5 +146,47 @@ export class AuthenticationService {
     return response({
       message: "OTP verified successfully",
     })
+  }
+
+  async myProfile(id: string) {
+    const user = await UserModel.findById(id).select("-password")
+
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
+
+    return response({
+      message: "User profile fetched successfully",
+      data: user,
+    })
+  }
+
+  async refreshToken(req: FastifyRequest, res: FastifyReply) {
+    const refreshToken = req.cookies?.["refresh-token"]
+
+    if (!refreshToken) {
+      throw new UnauthorizedException("Refresh token missing")
+    }
+
+    const payload = verify(
+      refreshToken,
+      `${env.JWT_SECRET}-refresh-token-signature`,
+    ) as IMiddlewareUser
+
+    if (!payload) {
+      throw new UnauthorizedException("Invalid refresh token")
+    }
+
+    const accessToken = sign(payload, env.JWT_SECRET)
+
+    return res
+      .cookie("access-token", accessToken, {
+        expires: new Date(Date.now() + 1000 * 60 * 55), // 55 minutes
+        path: "/",
+      })
+      .send({
+        success: true,
+        message: "COOKIE-1",
+      })
   }
 }

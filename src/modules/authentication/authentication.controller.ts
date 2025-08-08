@@ -1,5 +1,17 @@
-import { Body, Controller, Post, Res } from "@nestjs/common"
-import { FastifyReply } from "fastify"
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  Res,
+  UseGuards,
+} from "@nestjs/common"
+import { FastifyReply, FastifyRequest } from "fastify"
+import { AuthGuard } from "~/auth-guard/auth-guard.guard"
+import { ContextUser } from "~/decorators/context-user.decorator"
+import { IMiddlewareUser } from "~/interfaces/user.interface"
 import { LoginDto, RegisterDto, VerifyOTPDto } from "./authentication.dto"
 import { AuthenticationService } from "./authentication.service"
 
@@ -20,5 +32,16 @@ export class AuthenticationController {
   @Post("verify-otp")
   verifyOTP(@Body() body: VerifyOTPDto) {
     return this.authenticationService.verifyOTP(body)
+  }
+
+  @UseGuards(AuthGuard)
+  @Get("my-profile")
+  getMyProfile(@ContextUser() user: IMiddlewareUser) {
+    return this.authenticationService.myProfile(user.user)
+  }
+
+  @Put("refresh-token")
+  refreshToken(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
+    return this.authenticationService.refreshToken(req, res)
   }
 }

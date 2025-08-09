@@ -9,6 +9,7 @@ import { AdminUsersModule } from "./modules/admin-users/admin-users.module"
 import { AuthenticationModule } from "./modules/authentication/authentication.module"
 import { CertificatesModule } from "./modules/certificates/certificates.module"
 import { TestsModule } from "./modules/tests/tests.module"
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { TestsModule } from "./modules/tests/tests.module"
     AdminTestsModule,
     TestsModule,
     AdminUsersModule,
+    UserModule,
   ],
   providers: [
     {

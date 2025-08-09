@@ -5,13 +5,15 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common"
+import { ApiQuery } from "@nestjs/swagger"
 import { AdminGuard } from "~/auth-guard/admin.guard"
 import { AuthGuard } from "~/auth-guard/auth-guard.guard"
 import { ContextUser } from "~/decorators/context-user.decorator"
 import { IContextUser } from "~/interfaces/user.interface"
-import { CreateQuestionDto } from "./admin-tests.dto"
+import { CreateQuestionDto, CreateQuestionsBulkDto } from "./admin-tests.dto"
 import { AdminTestsService } from "./admin-tests.service"
 
 @UseGuards(AuthGuard, AdminGuard)
@@ -24,9 +26,18 @@ export class AdminTestsController {
     return this.adminTestsService.getAllCompetencies()
   }
 
+  @ApiQuery({ name: "page", required: false, type: Number, example: 1 })
+  @ApiQuery({ name: "limit", required: false, type: Number, example: 10 })
   @Get("questions")
-  getAllQuestions() {
-    return this.adminTestsService.getAllQuestions()
+  getAllQuestions(@Query("page") page: string, @Query("limit") limit: string) {
+    const _page = Number(page)
+    const _limit = Number(limit)
+    return this.adminTestsService.getAllQuestions(_page, _limit)
+  }
+
+  @Get("questions/:level")
+  getAllQuestionsByLevel(@Param("level") level: string) {
+    return this.adminTestsService.getAllQuestionsByLevel(level)
   }
 
   @Post("questions")
@@ -35,6 +46,14 @@ export class AdminTestsController {
     @ContextUser() { user }: IContextUser,
   ) {
     return this.adminTestsService.createQuestion(body, user)
+  }
+
+  @Post("questions/bulk")
+  createQuestions(
+    @Body() body: CreateQuestionsBulkDto,
+    @ContextUser() { user }: IContextUser,
+  ) {
+    return this.adminTestsService.createQuestions(body, user)
   }
 
   @Delete("questions/:id")

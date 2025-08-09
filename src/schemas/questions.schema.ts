@@ -32,7 +32,7 @@ const TestQuestionSchema = new Schema<IQuestion>(
     },
     timeLimit: {
       type: Number,
-      required: true,
+      default: 60,
     },
   },
   { timestamps: true },

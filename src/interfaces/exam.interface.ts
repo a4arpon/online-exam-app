@@ -1,21 +1,28 @@
-import { Document } from "mongoose"
-import { IQuestion, QuestionLevelType } from "./question.interface"
+import { Document, Types } from "mongoose"
+import { QuestionLevelType } from "./question.interface"
 import { IUser } from "./user.interface"
 
-export type ExamStep = 1 | 2 | 3
-
-export interface IQuestionAnswer {
-  question: IQuestion
-  selected: string
+export enum AnswerStatus {
+  VALID = "valid",
+  TIMEOUT = "timeout",
+  INVALID = "invalid",
 }
 
-export interface IExamAttempt extends Document {
+export interface IExamSession extends Document {
   user: IUser
-  step: ExamStep
-  questions: IQuestionAnswer[]
-  score: number
-  passedLevel: QuestionLevelType | null
-  status: "completed" | "failed"
-  startedAt: string
-  endedAt: string
+  step: number
+  levels: QuestionLevelType[]
+  startedAt: Date
+  endedAt?: Date
+  score?: number
+  status?: "passed" | "failed" | "in-progress"
+  retakeAllowed: boolean
+
+  answers: {
+    question: Types.ObjectId
+    selectedOption: string
+    isCorrect: boolean
+    answeredAt: Date
+    status: AnswerStatus
+  }[]
 }

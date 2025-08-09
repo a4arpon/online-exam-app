@@ -13,7 +13,9 @@ import { env } from "./libs/env.lib"
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    new FastifyAdapter({
+      logger: true,
+    }),
   )
 
   const config = new DocumentBuilder()
@@ -32,15 +34,23 @@ async function bootstrap() {
     credentials: true,
   })
 
-  await app.register(fastifyHelmet, {
-    contentSecurityPolicy: false,
-  })
-  await app.register(compression, {
-    encodings: ["gzip", "deflate"],
-  })
-  await app.register(fastifyCookie, {
-    secret: env.COOKIE_SIGNATURE,
-  })
+  /**
+   * |---------------------------------------------------------
+   * | Async Middleware Register
+   * |---------------------------------------------------------
+   */
+
+  await Promise.all([
+    app.register(fastifyHelmet, {
+      contentSecurityPolicy: false,
+    }),
+    app.register(compression, {
+      encodings: ["gzip", "deflate"],
+    }),
+    app.register(fastifyCookie, {
+      secret: env.COOKIE_SIGNATURE,
+    }),
+  ])
 
   await app.listen(process.env.PORT || Number.parseInt(env.PORT), "0.0.0.0")
 

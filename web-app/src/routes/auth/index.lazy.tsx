@@ -12,7 +12,7 @@ import { Label } from "@app/components/ui/label"
 import { isValidPayload } from "@app/lib/validator"
 import { authServices, authValidations } from "@app/services/auth.services"
 import type { Static } from "@sinclair/typebox"
-import { createLazyFileRoute, Link } from "@tanstack/react-router"
+import { createLazyFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { motion } from "framer-motion"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -24,6 +24,7 @@ export const Route = createLazyFileRoute("/auth/")({
 function RouteComponent() {
   const { register, reset, handleSubmit } =
     useForm<Static<typeof authValidations.login>>()
+  const navigate = useNavigate()
 
   const onSubmit = handleSubmit(async (data) => {
     const { isValidated, errorMessage } = isValidPayload(
@@ -36,12 +37,11 @@ function RouteComponent() {
       return
     }
 
-    const { isSuccess, message } = await authServices.login(() => {
-      reset()
-    })
+    const { isSuccess, message } = await authServices.login(data)
 
     if (isSuccess) {
       toast.success(message)
+      navigate({ to: "/u", replace: true })
     }
   })
 

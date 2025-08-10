@@ -1,6 +1,30 @@
 import { httpClient } from "@app/lib/axios"
 import { type Static, Type } from "@sinclair/typebox"
 
+/**
+ * |---------------------------------------------------------
+ * | Type Declaration Start
+ * |---------------------------------------------------------
+ */
+
+export type AuthorizedUserProfile = {
+  _id: string
+  name: string
+  email: string
+  role: "student" | "admin"
+  isVerified: boolean
+  currentLevel: string
+  status: string
+  createdAt: string
+  updatedAt: string
+  __v: 0
+}
+/**
+ * |---------------------------------------------------------
+ * | Type Declaration End
+ * |---------------------------------------------------------
+ */
+
 class AuthServices {
   public async register(payload: Static<typeof authValidations.register>) {
     const resp = await httpClient<null>({
@@ -81,6 +105,15 @@ class AuthServices {
       isSuccess: false,
       message: resp?.message,
     }
+  }
+
+  public async myProfile() {
+    const resp = await httpClient<AuthorizedUserProfile>({
+      method: "GET",
+      url: "/authentication/my-profile",
+    })
+
+    return resp?.data
   }
 }
 

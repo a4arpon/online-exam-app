@@ -83,10 +83,12 @@ export class AuthenticationService {
         expires: new Date(Date.now() + 1000 * 60 * 55), // 55 minutes
         path: "/",
       })
-      .send({
-        message: "Login successful",
-        data: user,
-      })
+      .send(
+        response({
+          message: "Login Successful",
+          data: user,
+        }),
+      )
   }
 
   async register(body: RegisterDto) {

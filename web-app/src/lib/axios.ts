@@ -1,4 +1,4 @@
-import axios, { isAxiosError } from "axios"
+import axios, { type AxiosRequestConfig, isAxiosError } from "axios"
 import { toast } from "sonner"
 
 export const httpInterceptor = axios.create({
@@ -6,102 +6,123 @@ export const httpInterceptor = axios.create({
   withCredentials: true,
 })
 
-/**
- * |---------------------------------------------------------
- * | SWR Fetcher
- *
- * | SWR react data fetching hook
- * |---------------------------------------------------------
- */
+let isRefreshing = false
+let failedQueue: {
+  resolve: (value?: any) => void
+  reject: (error?: any) => void
+}[] = []
 
-export const swrFetcher = async (key: string) => {
-  try {
-    const response = await httpInterceptor.get(`${key}`)
-    return response.data
-  } catch (_error) {
-    return null
-  }
+const processQueue = (error: any, token: any = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error)
+    } else {
+      resolve(token)
+    }
+  })
+  failedQueue = []
 }
 
-interface HttpAsyncParams {
-  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
-  url: string
-  payload?: object | null | []
-  params?: Record<string, string | number>
-}
-
-// biome-ignore lint/suspicious/noExplicitAny: true
-interface ResponseType<T = any> {
-  success: boolean
-  message: string
-  data?: T | null
-  extra?: object
-}
-
-/**
- * |---------------------------------------------------------
- * | HTTP Client
- *
- * | This is a wrapper around Axios to handle the HTTP requests
- * | and responses. It also handles the toast notifications.
- * |---------------------------------------------------------
- */
-
-// biome-ignore lint/suspicious/noExplicitAny: true
 export async function httpClient<T = any>({
   method,
   url,
   payload,
   params,
-}: HttpAsyncParams): Promise<ResponseType<T> | null> {
+}: {
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
+  url: string
+  payload?: object | null | []
+  params?: Record<string, string | number>
+}): Promise<{
+  success: boolean
+  message: string
+  data?: T | null
+  extra?: object
+} | null> {
   let toaster: string | number = "xxxxx-toast"
   if (method !== "GET") {
     toaster = toast.loading("Please wait...")
   }
-  try {
-    const response = await httpInterceptor.request<T>({
-      method: method?.toLowerCase(),
-      url: url,
-      data: payload,
-      params: params,
-    })
 
-    const result = await response?.data
-
-    toast.dismiss(toaster)
-
-    return result as ResponseType
-  } catch (error) {
-    if (isAxiosError(error)) {
-      toast.error(`${error.status} : ${error?.response?.data?.message}`, {
-        id: toaster,
+  const makeRequest = async (): Promise<{
+    success: boolean
+    message: string
+    data?: T | null
+    extra?: object
+  }> => {
+    try {
+      const response = await httpInterceptor.request<T>({
+        method: method.toLowerCase() as AxiosRequestConfig["method"],
+        url,
+        data: payload,
+        params,
       })
+      toast.dismiss(toaster)
+      return response.data as {
+        success: boolean
+        message: string
+        data?: T | null
+        extra?: object
+      }
+    } catch (error) {
+      if (
+        isAxiosError(error) &&
+        error.response?.data?.message === "Access token missing"
+      ) {
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject })
+          }).then(() => makeRequest())
+        }
+
+        isRefreshing = true
+        try {
+          await httpInterceptor.put("/authentication/refresh-token")
+          isRefreshing = false
+          processQueue(null)
+          return makeRequest()
+        } catch (refreshError) {
+          isRefreshing = false
+          processQueue(refreshError, null)
+          toast.error("Session expired, please login again.", { id: toaster })
+          return {
+            success: false,
+            message: "Session expired, please login again.",
+            data: null,
+          }
+        }
+      }
+
+      toast.dismiss(toaster)
+
+      if (isAxiosError(error)) {
+        toast.error(`${error.status} : ${error?.response?.data?.message}`, {
+          id: toaster,
+        })
+        return {
+          success: false,
+          message: error?.response?.data?.message,
+          data: null,
+        }
+      }
+
+      if (error instanceof Error) {
+        toast.error(error.message, { id: toaster })
+        return {
+          success: false,
+          message: error.message,
+          data: null,
+        }
+      }
+
+      toast.error("Unknown error", { id: toaster })
       return {
         success: false,
-        message: error?.response?.data?.message,
+        message: "Unknown error",
         data: null,
       }
-    }
-
-    if (error instanceof Error) {
-      toast.error(error?.message, {
-        id: toaster,
-      })
-      return {
-        success: false,
-        message: error?.message,
-        data: null,
-      }
-    }
-
-    toast.error("Unknown error", {
-      id: toaster,
-    })
-
-    return {
-      success: false,
-      message: "Unknown error",
-      data: null,
     }
   }
+
+  return makeRequest()
 }

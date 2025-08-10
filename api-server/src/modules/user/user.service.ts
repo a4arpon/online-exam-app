@@ -44,6 +44,8 @@ export class UserService {
 
   private getHighestLevelFromStep(step: number): QuestionLevelType {
     switch (step) {
+      case 0:
+        return "A2"
       case 1:
         return "A2"
       case 2:

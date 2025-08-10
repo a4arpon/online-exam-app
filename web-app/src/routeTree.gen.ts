@@ -11,10 +11,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestsRouteRouteImport } from './routes/tests/route'
+import { Route as URouteRouteImport } from './routes/u/route'
+import { Route as AuthRouteRouteImport } from './routes/auth/route'
 
 const IndexLazyRouteImport = createFileRoute('/')()
-const TestsIndexLazyRouteImport = createFileRoute('/tests/')()
+const UIndexLazyRouteImport = createFileRoute('/u/')()
 const AuthIndexLazyRouteImport = createFileRoute('/auth/')()
 const AdminIndexLazyRouteImport = createFileRoute('/admin/')()
 const AuthWelcomeLazyRouteImport = createFileRoute('/auth/welcome')()
@@ -25,11 +26,16 @@ const AuthRegisterLazyRouteImport = createFileRoute('/auth/register')()
 const AuthRecoveryRequestLazyRouteImport = createFileRoute(
   '/auth/recovery-request',
 )()
-const TestsLevelIndexLazyRouteImport = createFileRoute('/tests/$level/')()
+const UTestsLevelIndexLazyRouteImport = createFileRoute('/u/tests/$level/')()
 
-const TestsRouteRoute = TestsRouteRouteImport.update({
-  id: '/tests',
-  path: '/tests',
+const URouteRoute = URouteRouteImport.update({
+  id: '/u',
+  path: '/u',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexLazyRoute = IndexLazyRouteImport.update({
@@ -37,15 +43,15 @@ const IndexLazyRoute = IndexLazyRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
-const TestsIndexLazyRoute = TestsIndexLazyRouteImport.update({
+const UIndexLazyRoute = UIndexLazyRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => TestsRouteRoute,
-} as any).lazy(() => import('./routes/tests/index.lazy').then((d) => d.Route))
+  getParentRoute: () => URouteRoute,
+} as any).lazy(() => import('./routes/u/index.lazy').then((d) => d.Route))
 const AuthIndexLazyRoute = AuthIndexLazyRouteImport.update({
-  id: '/auth/',
-  path: '/auth/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRouteRoute,
 } as any).lazy(() => import('./routes/auth/index.lazy').then((d) => d.Route))
 const AdminIndexLazyRoute = AdminIndexLazyRouteImport.update({
   id: '/admin/',
@@ -53,49 +59,50 @@ const AdminIndexLazyRoute = AdminIndexLazyRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
 const AuthWelcomeLazyRoute = AuthWelcomeLazyRouteImport.update({
-  id: '/auth/welcome',
-  path: '/auth/welcome',
-  getParentRoute: () => rootRouteImport,
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => AuthRouteRoute,
 } as any).lazy(() => import('./routes/auth/welcome.lazy').then((d) => d.Route))
 const AuthVerifyWelcomeOtpLazyRoute =
   AuthVerifyWelcomeOtpLazyRouteImport.update({
-    id: '/auth/verify-welcome-otp',
-    path: '/auth/verify-welcome-otp',
-    getParentRoute: () => rootRouteImport,
+    id: '/verify-welcome-otp',
+    path: '/verify-welcome-otp',
+    getParentRoute: () => AuthRouteRoute,
   } as any).lazy(() =>
     import('./routes/auth/verify-welcome-otp.lazy').then((d) => d.Route),
   )
 const AuthRegisterLazyRoute = AuthRegisterLazyRouteImport.update({
-  id: '/auth/register',
-  path: '/auth/register',
-  getParentRoute: () => rootRouteImport,
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => AuthRouteRoute,
 } as any).lazy(() => import('./routes/auth/register.lazy').then((d) => d.Route))
 const AuthRecoveryRequestLazyRoute = AuthRecoveryRequestLazyRouteImport.update({
-  id: '/auth/recovery-request',
-  path: '/auth/recovery-request',
-  getParentRoute: () => rootRouteImport,
+  id: '/recovery-request',
+  path: '/recovery-request',
+  getParentRoute: () => AuthRouteRoute,
 } as any).lazy(() =>
   import('./routes/auth/recovery-request.lazy').then((d) => d.Route),
 )
-const TestsLevelIndexLazyRoute = TestsLevelIndexLazyRouteImport.update({
-  id: '/$level/',
-  path: '/$level/',
-  getParentRoute: () => TestsRouteRoute,
+const UTestsLevelIndexLazyRoute = UTestsLevelIndexLazyRouteImport.update({
+  id: '/tests/$level/',
+  path: '/tests/$level/',
+  getParentRoute: () => URouteRoute,
 } as any).lazy(() =>
-  import('./routes/tests/$level/index.lazy').then((d) => d.Route),
+  import('./routes/u/tests/$level/index.lazy').then((d) => d.Route),
 )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
-  '/tests': typeof TestsRouteRouteWithChildren
+  '/auth': typeof AuthRouteRouteWithChildren
+  '/u': typeof URouteRouteWithChildren
   '/auth/recovery-request': typeof AuthRecoveryRequestLazyRoute
   '/auth/register': typeof AuthRegisterLazyRoute
   '/auth/verify-welcome-otp': typeof AuthVerifyWelcomeOtpLazyRoute
   '/auth/welcome': typeof AuthWelcomeLazyRoute
   '/admin': typeof AdminIndexLazyRoute
-  '/auth': typeof AuthIndexLazyRoute
-  '/tests/': typeof TestsIndexLazyRoute
-  '/tests/$level': typeof TestsLevelIndexLazyRoute
+  '/auth/': typeof AuthIndexLazyRoute
+  '/u/': typeof UIndexLazyRoute
+  '/u/tests/$level': typeof UTestsLevelIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
@@ -105,35 +112,37 @@ export interface FileRoutesByTo {
   '/auth/welcome': typeof AuthWelcomeLazyRoute
   '/admin': typeof AdminIndexLazyRoute
   '/auth': typeof AuthIndexLazyRoute
-  '/tests': typeof TestsIndexLazyRoute
-  '/tests/$level': typeof TestsLevelIndexLazyRoute
+  '/u': typeof UIndexLazyRoute
+  '/u/tests/$level': typeof UTestsLevelIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexLazyRoute
-  '/tests': typeof TestsRouteRouteWithChildren
+  '/auth': typeof AuthRouteRouteWithChildren
+  '/u': typeof URouteRouteWithChildren
   '/auth/recovery-request': typeof AuthRecoveryRequestLazyRoute
   '/auth/register': typeof AuthRegisterLazyRoute
   '/auth/verify-welcome-otp': typeof AuthVerifyWelcomeOtpLazyRoute
   '/auth/welcome': typeof AuthWelcomeLazyRoute
   '/admin/': typeof AdminIndexLazyRoute
   '/auth/': typeof AuthIndexLazyRoute
-  '/tests/': typeof TestsIndexLazyRoute
-  '/tests/$level/': typeof TestsLevelIndexLazyRoute
+  '/u/': typeof UIndexLazyRoute
+  '/u/tests/$level/': typeof UTestsLevelIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/tests'
+    | '/auth'
+    | '/u'
     | '/auth/recovery-request'
     | '/auth/register'
     | '/auth/verify-welcome-otp'
     | '/auth/welcome'
     | '/admin'
-    | '/auth'
-    | '/tests/'
-    | '/tests/$level'
+    | '/auth/'
+    | '/u/'
+    | '/u/tests/$level'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -143,40 +152,44 @@ export interface FileRouteTypes {
     | '/auth/welcome'
     | '/admin'
     | '/auth'
-    | '/tests'
-    | '/tests/$level'
+    | '/u'
+    | '/u/tests/$level'
   id:
     | '__root__'
     | '/'
-    | '/tests'
+    | '/auth'
+    | '/u'
     | '/auth/recovery-request'
     | '/auth/register'
     | '/auth/verify-welcome-otp'
     | '/auth/welcome'
     | '/admin/'
     | '/auth/'
-    | '/tests/'
-    | '/tests/$level/'
+    | '/u/'
+    | '/u/tests/$level/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
-  TestsRouteRoute: typeof TestsRouteRouteWithChildren
-  AuthRecoveryRequestLazyRoute: typeof AuthRecoveryRequestLazyRoute
-  AuthRegisterLazyRoute: typeof AuthRegisterLazyRoute
-  AuthVerifyWelcomeOtpLazyRoute: typeof AuthVerifyWelcomeOtpLazyRoute
-  AuthWelcomeLazyRoute: typeof AuthWelcomeLazyRoute
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  URouteRoute: typeof URouteRouteWithChildren
   AdminIndexLazyRoute: typeof AdminIndexLazyRoute
-  AuthIndexLazyRoute: typeof AuthIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tests': {
-      id: '/tests'
-      path: '/tests'
-      fullPath: '/tests'
-      preLoaderRoute: typeof TestsRouteRouteImport
+    '/u': {
+      id: '/u'
+      path: '/u'
+      fullPath: '/u'
+      preLoaderRoute: typeof URouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -186,19 +199,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tests/': {
-      id: '/tests/'
+    '/u/': {
+      id: '/u/'
       path: '/'
-      fullPath: '/tests/'
-      preLoaderRoute: typeof TestsIndexLazyRouteImport
-      parentRoute: typeof TestsRouteRoute
+      fullPath: '/u/'
+      preLoaderRoute: typeof UIndexLazyRouteImport
+      parentRoute: typeof URouteRoute
     }
     '/auth/': {
       id: '/auth/'
-      path: '/auth'
-      fullPath: '/auth'
+      path: '/'
+      fullPath: '/auth/'
       preLoaderRoute: typeof AuthIndexLazyRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -209,65 +222,80 @@ declare module '@tanstack/react-router' {
     }
     '/auth/welcome': {
       id: '/auth/welcome'
-      path: '/auth/welcome'
+      path: '/welcome'
       fullPath: '/auth/welcome'
       preLoaderRoute: typeof AuthWelcomeLazyRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/auth/verify-welcome-otp': {
       id: '/auth/verify-welcome-otp'
-      path: '/auth/verify-welcome-otp'
+      path: '/verify-welcome-otp'
       fullPath: '/auth/verify-welcome-otp'
       preLoaderRoute: typeof AuthVerifyWelcomeOtpLazyRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/auth/register': {
       id: '/auth/register'
-      path: '/auth/register'
+      path: '/register'
       fullPath: '/auth/register'
       preLoaderRoute: typeof AuthRegisterLazyRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/auth/recovery-request': {
       id: '/auth/recovery-request'
-      path: '/auth/recovery-request'
+      path: '/recovery-request'
       fullPath: '/auth/recovery-request'
       preLoaderRoute: typeof AuthRecoveryRequestLazyRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
-    '/tests/$level/': {
-      id: '/tests/$level/'
-      path: '/$level'
-      fullPath: '/tests/$level'
-      preLoaderRoute: typeof TestsLevelIndexLazyRouteImport
-      parentRoute: typeof TestsRouteRoute
+    '/u/tests/$level/': {
+      id: '/u/tests/$level/'
+      path: '/tests/$level'
+      fullPath: '/u/tests/$level'
+      preLoaderRoute: typeof UTestsLevelIndexLazyRouteImport
+      parentRoute: typeof URouteRoute
     }
   }
 }
 
-interface TestsRouteRouteChildren {
-  TestsIndexLazyRoute: typeof TestsIndexLazyRoute
-  TestsLevelIndexLazyRoute: typeof TestsLevelIndexLazyRoute
+interface AuthRouteRouteChildren {
+  AuthRecoveryRequestLazyRoute: typeof AuthRecoveryRequestLazyRoute
+  AuthRegisterLazyRoute: typeof AuthRegisterLazyRoute
+  AuthVerifyWelcomeOtpLazyRoute: typeof AuthVerifyWelcomeOtpLazyRoute
+  AuthWelcomeLazyRoute: typeof AuthWelcomeLazyRoute
+  AuthIndexLazyRoute: typeof AuthIndexLazyRoute
 }
 
-const TestsRouteRouteChildren: TestsRouteRouteChildren = {
-  TestsIndexLazyRoute: TestsIndexLazyRoute,
-  TestsLevelIndexLazyRoute: TestsLevelIndexLazyRoute,
-}
-
-const TestsRouteRouteWithChildren = TestsRouteRoute._addFileChildren(
-  TestsRouteRouteChildren,
-)
-
-const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
-  TestsRouteRoute: TestsRouteRouteWithChildren,
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthRecoveryRequestLazyRoute: AuthRecoveryRequestLazyRoute,
   AuthRegisterLazyRoute: AuthRegisterLazyRoute,
   AuthVerifyWelcomeOtpLazyRoute: AuthVerifyWelcomeOtpLazyRoute,
   AuthWelcomeLazyRoute: AuthWelcomeLazyRoute,
-  AdminIndexLazyRoute: AdminIndexLazyRoute,
   AuthIndexLazyRoute: AuthIndexLazyRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
+
+interface URouteRouteChildren {
+  UIndexLazyRoute: typeof UIndexLazyRoute
+  UTestsLevelIndexLazyRoute: typeof UTestsLevelIndexLazyRoute
+}
+
+const URouteRouteChildren: URouteRouteChildren = {
+  UIndexLazyRoute: UIndexLazyRoute,
+  UTestsLevelIndexLazyRoute: UTestsLevelIndexLazyRoute,
+}
+
+const URouteRouteWithChildren =
+  URouteRoute._addFileChildren(URouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexLazyRoute: IndexLazyRoute,
+  AuthRouteRoute: AuthRouteRouteWithChildren,
+  URouteRoute: URouteRouteWithChildren,
+  AdminIndexLazyRoute: AdminIndexLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

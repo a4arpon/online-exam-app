@@ -1,5 +1,7 @@
+import { useAuth } from "@app/providers/AuthProvider"
 import { Link } from "@tanstack/react-router"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Button } from "../ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +17,8 @@ const menuItems = [
 ]
 
 export function Navbar() {
+  const { isAuthorized } = useAuth()
+
   return (
     <header className="pt-3">
       <div className="flex items-center justify-between container mx-auto bg-card p-4 rounded-lg shadow-xs">
@@ -40,21 +44,25 @@ export function Navbar() {
           </nav>
 
           {/* Profile Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="h-10 w-10 cursor-pointer">
-                <AvatarImage src="/placeholder.jpg" alt="@user" />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <Link to="/auth">
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-              </Link>
-              <DropdownMenuItem>My Certificates</DropdownMenuItem>
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {isAuthorized ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="h-10 w-10 cursor-pointer">
+                  <AvatarImage src="/placeholder.jpg" alt="@user" />
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <Link to="/auth">
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem>My Certificates</DropdownMenuItem>
+                <DropdownMenuItem>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button>Login</Button>
+          )}
         </div>
       </div>
     </header>

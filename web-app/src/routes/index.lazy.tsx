@@ -16,7 +16,7 @@ function RouteComponent() {
           <h3 className="text-6xl">Grab Your Free Certificate</h3>
           <h3 className="text-4xl leading-relaxed">
             Organized by ~ <br />
-            Hunan Govt. High School English Club
+            Unan English Club
           </h3>
           <Button>Begin Your Test</Button>
         </div>

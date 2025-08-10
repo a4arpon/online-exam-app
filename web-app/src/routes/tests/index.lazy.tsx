@@ -7,13 +7,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@app/components/ui/card"
-import { createLazyFileRoute } from "@tanstack/react-router"
+import { createLazyFileRoute, useNavigate } from "@tanstack/react-router"
 
 export const Route = createLazyFileRoute("/tests/")({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const navigator = useNavigate()
+
   return (
     <div className="grid grid-cols-3">
       <Card>
@@ -22,11 +24,21 @@ function RouteComponent() {
           <CardDescription>Stage: Beginner</CardDescription>
         </CardHeader>
         <CardContent>
-          <p>Questions: 22</p>
           <p>Retake Allowed: No</p>
         </CardContent>
         <CardFooter className="justify-end">
-          <Button>Start Test Session</Button>
+          <Button
+            onClick={() =>
+              navigator({
+                to: "/tests/$level",
+                params: {
+                  level: "1",
+                },
+              })
+            }
+          >
+            Start Test Session
+          </Button>
         </CardFooter>
       </Card>
     </div>

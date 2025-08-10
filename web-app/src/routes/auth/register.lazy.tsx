@@ -12,7 +12,7 @@ import { Label } from "@app/components/ui/label"
 import { isValidPayload } from "@app/lib/validator"
 import { authServices, authValidations } from "@app/services/auth.services"
 import type { Static } from "@sinclair/typebox"
-import { createLazyFileRoute, Link } from "@tanstack/react-router"
+import { createLazyFileRoute, Link, useNavigate } from "@tanstack/react-router"
 import { motion } from "framer-motion"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -23,11 +23,12 @@ export const Route = createLazyFileRoute("/auth/register")({
 
 function RouteComponent() {
   const { register, reset, handleSubmit } =
-    useForm<Static<typeof authValidations.login>>()
+    useForm<Static<typeof authValidations.register>>()
+  const navigate = useNavigate()
 
   const onSubmit = handleSubmit(async (data) => {
     const { isValidated, errorMessage } = isValidPayload(
-      authValidations.login,
+      authValidations.register,
       data,
     )
 
@@ -36,13 +37,15 @@ function RouteComponent() {
       return
     }
 
-    const { isSuccess, message } = await authServices.login(() => {
-      reset()
-    })
+    const { isSuccess, message } = await authServices.register(data)
 
     if (isSuccess) {
       toast.success(message)
+      navigate({ to: "/auth/welcome", replace: true })
+      return
     }
+
+    toast.info(message)
   })
 
   return (
@@ -57,11 +60,11 @@ function RouteComponent() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col gap-2.5">
-              <Label>Organization Code</Label>
+              <Label>Name</Label>
               <Input
                 placeholder="Enter Your Email"
-                {...register("email")}
-                type="email"
+                {...register("name")}
+                type="text"
               />
             </div>
             <div className="flex flex-col gap-2.5">
@@ -86,14 +89,6 @@ function RouteComponent() {
                 placeholder="Enter Your Password"
                 {...register("password")}
               />
-            </div>
-            <div>
-              <p>
-                Forgot password?{" "}
-                <Link to="/auth" className="underline">
-                  Recover Now
-                </Link>
-              </p>
             </div>
           </CardContent>
           <CardFooter className="justify-end">

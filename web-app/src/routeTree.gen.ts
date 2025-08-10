@@ -17,10 +17,15 @@ const IndexLazyRouteImport = createFileRoute('/')()
 const TestsIndexLazyRouteImport = createFileRoute('/tests/')()
 const AuthIndexLazyRouteImport = createFileRoute('/auth/')()
 const AdminIndexLazyRouteImport = createFileRoute('/admin/')()
+const AuthWelcomeLazyRouteImport = createFileRoute('/auth/welcome')()
+const AuthVerifyWelcomeOtpLazyRouteImport = createFileRoute(
+  '/auth/verify-welcome-otp',
+)()
 const AuthRegisterLazyRouteImport = createFileRoute('/auth/register')()
 const AuthRecoveryRequestLazyRouteImport = createFileRoute(
   '/auth/recovery-request',
 )()
+const TestsLevelIndexLazyRouteImport = createFileRoute('/tests/$level/')()
 
 const TestsRouteRoute = TestsRouteRouteImport.update({
   id: '/tests',
@@ -47,6 +52,19 @@ const AdminIndexLazyRoute = AdminIndexLazyRouteImport.update({
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
+const AuthWelcomeLazyRoute = AuthWelcomeLazyRouteImport.update({
+  id: '/auth/welcome',
+  path: '/auth/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any).lazy(() => import('./routes/auth/welcome.lazy').then((d) => d.Route))
+const AuthVerifyWelcomeOtpLazyRoute =
+  AuthVerifyWelcomeOtpLazyRouteImport.update({
+    id: '/auth/verify-welcome-otp',
+    path: '/auth/verify-welcome-otp',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/auth/verify-welcome-otp.lazy').then((d) => d.Route),
+  )
 const AuthRegisterLazyRoute = AuthRegisterLazyRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
@@ -59,23 +77,36 @@ const AuthRecoveryRequestLazyRoute = AuthRecoveryRequestLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/auth/recovery-request.lazy').then((d) => d.Route),
 )
+const TestsLevelIndexLazyRoute = TestsLevelIndexLazyRouteImport.update({
+  id: '/$level/',
+  path: '/$level/',
+  getParentRoute: () => TestsRouteRoute,
+} as any).lazy(() =>
+  import('./routes/tests/$level/index.lazy').then((d) => d.Route),
+)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
   '/tests': typeof TestsRouteRouteWithChildren
   '/auth/recovery-request': typeof AuthRecoveryRequestLazyRoute
   '/auth/register': typeof AuthRegisterLazyRoute
+  '/auth/verify-welcome-otp': typeof AuthVerifyWelcomeOtpLazyRoute
+  '/auth/welcome': typeof AuthWelcomeLazyRoute
   '/admin': typeof AdminIndexLazyRoute
   '/auth': typeof AuthIndexLazyRoute
   '/tests/': typeof TestsIndexLazyRoute
+  '/tests/$level': typeof TestsLevelIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
   '/auth/recovery-request': typeof AuthRecoveryRequestLazyRoute
   '/auth/register': typeof AuthRegisterLazyRoute
+  '/auth/verify-welcome-otp': typeof AuthVerifyWelcomeOtpLazyRoute
+  '/auth/welcome': typeof AuthWelcomeLazyRoute
   '/admin': typeof AdminIndexLazyRoute
   '/auth': typeof AuthIndexLazyRoute
   '/tests': typeof TestsIndexLazyRoute
+  '/tests/$level': typeof TestsLevelIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -83,9 +114,12 @@ export interface FileRoutesById {
   '/tests': typeof TestsRouteRouteWithChildren
   '/auth/recovery-request': typeof AuthRecoveryRequestLazyRoute
   '/auth/register': typeof AuthRegisterLazyRoute
+  '/auth/verify-welcome-otp': typeof AuthVerifyWelcomeOtpLazyRoute
+  '/auth/welcome': typeof AuthWelcomeLazyRoute
   '/admin/': typeof AdminIndexLazyRoute
   '/auth/': typeof AuthIndexLazyRoute
   '/tests/': typeof TestsIndexLazyRoute
+  '/tests/$level/': typeof TestsLevelIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -94,26 +128,35 @@ export interface FileRouteTypes {
     | '/tests'
     | '/auth/recovery-request'
     | '/auth/register'
+    | '/auth/verify-welcome-otp'
+    | '/auth/welcome'
     | '/admin'
     | '/auth'
     | '/tests/'
+    | '/tests/$level'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth/recovery-request'
     | '/auth/register'
+    | '/auth/verify-welcome-otp'
+    | '/auth/welcome'
     | '/admin'
     | '/auth'
     | '/tests'
+    | '/tests/$level'
   id:
     | '__root__'
     | '/'
     | '/tests'
     | '/auth/recovery-request'
     | '/auth/register'
+    | '/auth/verify-welcome-otp'
+    | '/auth/welcome'
     | '/admin/'
     | '/auth/'
     | '/tests/'
+    | '/tests/$level/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -121,6 +164,8 @@ export interface RootRouteChildren {
   TestsRouteRoute: typeof TestsRouteRouteWithChildren
   AuthRecoveryRequestLazyRoute: typeof AuthRecoveryRequestLazyRoute
   AuthRegisterLazyRoute: typeof AuthRegisterLazyRoute
+  AuthVerifyWelcomeOtpLazyRoute: typeof AuthVerifyWelcomeOtpLazyRoute
+  AuthWelcomeLazyRoute: typeof AuthWelcomeLazyRoute
   AdminIndexLazyRoute: typeof AdminIndexLazyRoute
   AuthIndexLazyRoute: typeof AuthIndexLazyRoute
 }
@@ -162,6 +207,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/welcome': {
+      id: '/auth/welcome'
+      path: '/auth/welcome'
+      fullPath: '/auth/welcome'
+      preLoaderRoute: typeof AuthWelcomeLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/verify-welcome-otp': {
+      id: '/auth/verify-welcome-otp'
+      path: '/auth/verify-welcome-otp'
+      fullPath: '/auth/verify-welcome-otp'
+      preLoaderRoute: typeof AuthVerifyWelcomeOtpLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth/register': {
       id: '/auth/register'
       path: '/auth/register'
@@ -176,15 +235,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRecoveryRequestLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tests/$level/': {
+      id: '/tests/$level/'
+      path: '/$level'
+      fullPath: '/tests/$level'
+      preLoaderRoute: typeof TestsLevelIndexLazyRouteImport
+      parentRoute: typeof TestsRouteRoute
+    }
   }
 }
 
 interface TestsRouteRouteChildren {
   TestsIndexLazyRoute: typeof TestsIndexLazyRoute
+  TestsLevelIndexLazyRoute: typeof TestsLevelIndexLazyRoute
 }
 
 const TestsRouteRouteChildren: TestsRouteRouteChildren = {
   TestsIndexLazyRoute: TestsIndexLazyRoute,
+  TestsLevelIndexLazyRoute: TestsLevelIndexLazyRoute,
 }
 
 const TestsRouteRouteWithChildren = TestsRouteRoute._addFileChildren(
@@ -196,6 +264,8 @@ const rootRouteChildren: RootRouteChildren = {
   TestsRouteRoute: TestsRouteRouteWithChildren,
   AuthRecoveryRequestLazyRoute: AuthRecoveryRequestLazyRoute,
   AuthRegisterLazyRoute: AuthRegisterLazyRoute,
+  AuthVerifyWelcomeOtpLazyRoute: AuthVerifyWelcomeOtpLazyRoute,
+  AuthWelcomeLazyRoute: AuthWelcomeLazyRoute,
   AdminIndexLazyRoute: AdminIndexLazyRoute,
   AuthIndexLazyRoute: AuthIndexLazyRoute,
 }

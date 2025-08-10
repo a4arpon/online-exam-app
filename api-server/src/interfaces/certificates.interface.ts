@@ -5,6 +5,8 @@ export interface ICertificate extends Document {
   examSession: Types.ObjectId
   step: number
   score: number
+  scorePercentage: number
   issuedAt: Date
-  fileUrl: string
+  userName: string
+  levelName: string
 }

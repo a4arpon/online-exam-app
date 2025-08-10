@@ -38,7 +38,7 @@ export async function sendMail(
   opts: MailSendArgs,
 ): Promise<nodemailer.SentMessageInfo> {
   const mailOptions: SendMailOptions = {
-    from: `"Hunan Govt. High School" <${env.GMAIL_SMTP_MAIL_ADDRESS}>`,
+    from: `"Unan English Club" <${env.GMAIL_SMTP_MAIL_ADDRESS}>`,
     to: opts.to,
     subject: opts.subject,
     text: opts.text,

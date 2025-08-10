@@ -12,20 +12,16 @@ const menuItems = [
     text: "Home",
     href: "/",
   },
-  {
-    text: "English Tests",
-    href: "/",
-  },
 ]
 
 export function Navbar() {
   return (
     <header className="pt-3">
-      <div className="flex items-center justify-between container mx-auto bg-card p-4 border rounded-lg">
+      <div className="flex items-center justify-between container mx-auto bg-card p-4 rounded-lg shadow-xs">
         {/* Left: Branding + Search */}
         <div className="flex items-center gap-4">
           <span className="text-4xl font-bold tracking-tight">
-            Hunan Govt. High School
+            Unan English Club
           </span>
         </div>
 

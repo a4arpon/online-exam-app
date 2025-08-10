@@ -12,7 +12,7 @@ import { env } from "~/libs/env.lib"
 import { sendMail } from "~/libs/nodemailer"
 import { response } from "~/libs/response"
 import { UserModel } from "~/schemas/user.schema"
-import { LoginDto, RegisterDto } from "./authentication.dto"
+import { LoginDto, RegisterDto, ResetPasswordDto } from "./authentication.dto"
 
 @Injectable()
 export class AuthenticationService {
@@ -32,6 +32,7 @@ export class AuthenticationService {
     {
       OTP: number
       createdAt: Date
+      subject: "account-verify" | "password-reset"
     }
   >()
 
@@ -100,6 +101,7 @@ export class AuthenticationService {
     this.OTP_CACHES.set(body?.email, {
       OTP,
       createdAt: new Date(),
+      subject: "account-verify",
     })
 
     Promise.all([
@@ -116,7 +118,39 @@ export class AuthenticationService {
     })
   }
 
-  async verifyOTP(body: { email: string; OTP: number }) {
+  async resendRegisterOTP(email: string) {
+    const user = await UserModel.findOne({ email: email }).select(
+      "_id email isVerified",
+    )
+
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
+
+    if (user.isVerified) {
+      throw new BadRequestException("User is already verified")
+    }
+
+    const newOTP = this.generateOTP()
+
+    this.OTP_CACHES.set(email, {
+      createdAt: new Date(),
+      OTP: newOTP,
+      subject: "account-verify",
+    })
+
+    await sendMail({
+      to: email,
+      subject: "Verify your account",
+      html: `<p>Your OTP: <strong>${newOTP}</strong></p>`,
+    })
+
+    return response({
+      message: "OTP sent to your email",
+    })
+  }
+
+  async verifyRegisterOTP(body: { email: string; OTP: number }) {
     const user = await UserModel.findOne({ email: body?.email }).select(
       "_id email isVerified",
     )
@@ -132,10 +166,14 @@ export class AuthenticationService {
     const cache = this.OTP_CACHES.get(body?.email)
 
     if (!cache) {
-      throw new BadRequestException("OTP not found")
+      throw new BadRequestException("OTP not found or might be expired")
     }
 
     if (cache.OTP !== body?.OTP) {
+      throw new BadRequestException("OTP is invalid")
+    }
+
+    if (cache.subject !== "account-verify") {
       throw new BadRequestException("OTP is invalid")
     }
 
@@ -188,5 +226,70 @@ export class AuthenticationService {
         success: true,
         message: "COOKIE-1",
       })
+  }
+
+  private generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000)
+  } // Example output: 123456
+
+  async requestPasswordReset(email: string) {
+    const user = await UserModel.findOne({ email })
+    if (!user) throw new BadRequestException("User not found")
+
+    const otp = this.generateOTP()
+
+    this.OTP_CACHES.set(email, {
+      createdAt: new Date(),
+      OTP: otp,
+      subject: "password-reset",
+    })
+
+    await sendMail({
+      to: email,
+      subject: "Password Reset Request",
+      text: `Your password reset OTP is: ${otp}`,
+    })
+
+    return response({
+      message: "OTP sent to your email",
+    })
+  }
+
+  verifyPasswordResetOTP(email: string, otp: number) {
+    const otpCache = this.OTP_CACHES.get(email)
+
+    if (!otpCache) {
+      return false
+    }
+
+    if (otpCache.OTP !== otp) {
+      return false
+    }
+
+    this.OTP_CACHES.delete(email)
+
+    return true
+  }
+
+  async resetPassword(body: ResetPasswordDto) {
+    const isValid = this.verifyPasswordResetOTP(body.email, body.otp)
+
+    if (!isValid) {
+      throw new BadRequestException("Invalid OTP")
+    }
+
+    const user = await UserModel.findOne({ email: body?.email })
+
+    if (!user) {
+      throw new BadRequestException("User not found")
+    }
+
+    const hashedPassword = await bcrypt.hash(body.password, 10)
+
+    await UserModel.updateOne({ _id: user?._id }, { password: hashedPassword })
+
+    return response({
+      message: "Password reset successfully",
+    })
   }
 }

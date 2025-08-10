@@ -7,6 +7,7 @@ import { Types } from "mongoose"
 import { AnswerStatus } from "~/interfaces/exam.interface"
 import { QuestionLevelType } from "~/interfaces/question.interface"
 import { response } from "~/libs/response"
+import { Certificate } from "~/schemas/certificates.schema"
 import { ExamSessionModel } from "~/schemas/exam-session.schema"
 import { TestQuestionModel } from "~/schemas/questions.schema"
 import { UserModel } from "~/schemas/user.schema"
@@ -36,7 +37,7 @@ export class SubmissionService {
     const session = await ExamSessionModel.findOne({
       user: userId,
       status: "in-progress",
-    })
+    }).populate("user", "name")
     if (!session) throw new NotFoundException("No active exam session found")
 
     const questionIds = answers.map((a) => a.question)
@@ -167,6 +168,16 @@ export class SubmissionService {
         certification = "C1 certified"
       } else {
         certification = "C2 certified"
+
+        await Certificate.create({
+          user: userId,
+          examSession: session._id,
+          step,
+          score: validCorrectCount,
+          scorePercentage: Math.round(scorePercentage * 100),
+          userName: session?.user?.name,
+          levelName: certification,
+        })
       }
     }
 

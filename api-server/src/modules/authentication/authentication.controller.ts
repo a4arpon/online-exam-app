@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  Patch,
   Post,
   Put,
   Req,
@@ -12,7 +14,12 @@ import { FastifyReply, FastifyRequest } from "fastify"
 import { AuthGuard } from "~/auth-guard/auth-guard.guard"
 import { ContextUser } from "~/decorators/context-user.decorator"
 import { IContextUser } from "~/interfaces/user.interface"
-import { LoginDto, RegisterDto, VerifyOTPDto } from "./authentication.dto"
+import {
+  LoginDto,
+  RegisterDto,
+  ResetPasswordDto,
+  VerifyOTPDto,
+} from "./authentication.dto"
 import { AuthenticationService } from "./authentication.service"
 
 @Controller("authentication")
@@ -31,7 +38,7 @@ export class AuthenticationController {
 
   @Post("verify-otp")
   verifyOTP(@Body() body: VerifyOTPDto) {
-    return this.authenticationService.verifyOTP(body)
+    return this.authenticationService.verifyRegisterOTP(body)
   }
 
   @UseGuards(AuthGuard)
@@ -43,5 +50,20 @@ export class AuthenticationController {
   @Put("refresh-token")
   refreshToken(@Req() req: FastifyRequest, @Res() res: FastifyReply) {
     return this.authenticationService.refreshToken(req, res)
+  }
+
+  @Put("reset-password-request/:email")
+  resetPasswordRequest(@Param("email") email: string) {
+    return this.authenticationService.requestPasswordReset(email)
+  }
+
+  @Put("reset-password")
+  resetPassword(@Body() body: ResetPasswordDto) {
+    return this.authenticationService.resetPassword(body)
+  }
+
+  @Patch("register-otp-refresh/:email")
+  registerOTPRefresh(@Param("email") email: string) {
+    return this.authenticationService.resendRegisterOTP(email)
   }
 }

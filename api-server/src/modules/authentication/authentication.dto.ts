@@ -44,3 +44,17 @@ export class VerifyOTPDto {
   @IsNumber()
   OTP: number
 }
+
+export class ResetPasswordDto {
+  @ApiProperty()
+  @IsEmail()
+  email: string
+
+  @ApiProperty()
+  @IsString()
+  password: string
+
+  @ApiProperty()
+  @IsNumber()
+  otp: number
+}
